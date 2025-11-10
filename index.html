@@ -1,2 +1,536 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HydroPot: Maceta de Autorriego Inteligente | Proyecto 5to "A"</title>
+    
+    <style>
+/* CONFIGURACIÓN BÁSICA - ESTILO MINIMALISTA Y PROFESIONAL */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin: 0;
+    padding: 0;
+    color: #444;
+    background-color: #fcfcfc;
+}
+
+.container {
+    width: 90%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px 0;
+}
+
+/* PALETA DE COLORES */
+h1, h2, h3 { color: #2E7D32; font-weight: 600; }
+/* Se incrementó el padding-top para dejar espacio al botón de volver */
+section { padding: 80px 0 80px 0; text-align: center; transition: opacity 0.5s ease-in-out; position: relative; } 
+.section-gray { background-color: #F5F5F5; }
+.section-white { background-color: white; }
+
+/* ---------------------------------------------------- */
+/* BOTÓN DE VOLVER (ESTILO FINAL) */
+/* ---------------------------------------------------- */
+.back-button {
+    position: absolute; 
+    top: 20px;
+    left: 20px;
+    background-color: #58a55c; 
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 8px;
+    font-size: 1em;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.2s;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+    z-index: 10;
+}
+
+.back-button:hover {
+    background-color: #2E7D32; 
+    transform: scale(1.05);
+}
+
+
+/* ---------------------------------------------------- */
+/* CABECERA PRINCIPAL (HERO) - CUBRE TODA LA PANTALLA */
+/* ---------------------------------------------------- */
+.hero {
+    min-height: 100vh; 
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    background: linear-gradient(135deg, #66BB6A, #4CAF50);
+    color: white;
+    text-align: center;
+    padding: 50px 0;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.hero h1 { font-size: 4em; color: white; margin-bottom: 5px; font-weight: 700; }
+.hero p { font-size: 1.5em; margin-bottom: 40px; font-weight: 300; }
+
+/* ---------------------------------------------------- */
+/* ESTILOS DEL MENÚ DE BOTONES CENTRALIZADO */
+/* ---------------------------------------------------- */
+.main-menu {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 20px;
+    margin-top: 40px;
+}
+
+.menu-button {
+    display: inline-block;
+    background-color: #2E7D32; /* Verde Oscuro */
+    color: white;
+    padding: 15px 35px;
+    text-decoration: none;
+    border-radius: 50px; /* Botón redondeado */
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    transition: background-color 0.3s, transform 0.2s, box-shadow 0.3s;
+    min-width: 200px; 
+    text-align: center;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    cursor: pointer; 
+}
+
+.menu-button:hover { 
+    background-color: #1B5E20; 
+    transform: translateY(-3px); 
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+}
+
+
+/* ---------------------------------------------------- */
+/* OCULTAMIENTO DE CONTENIDO DINÁMICO (CRÍTICO) */
+/* ---------------------------------------------------- */
+.content-section {
+    display: none; /* Oculta todas las secciones por defecto */
+}
+.content-section.active {
+    display: block; /* Muestra solo la sección activa */
+}
+
+/* OTROS ESTILOS DE SECCIÓN */
+.dirigido { font-style: italic; max-width: 800px; margin: 20px auto; }
+.objetivos-grid, .componentes-grid {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    text-align: left;
+    gap: 30px;
+    margin-top: 30px;
+}
+.objetivos-grid > div, .componentes-grid > div {
+    width: 45%; 
+    min-width: 320px;
+    padding: 25px;
+    border-radius: 12px;
+    background-color: white;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+    transition: transform 0.3s;
+}
+.objetivos-grid > div:hover, .componentes-grid > div:hover {
+    transform: translateY(-5px);
+}
+ul { padding-left: 20px; }
+li { margin-bottom: 8px; line-height: 1.6; }
+.render-container { margin: 40px auto; max-width: 700px; }
+.render-image {
+    max-width: 100%; 
+    height: auto; 
+    border-radius: 15px; 
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
+}
+.led-indicators { list-style: none; padding: 0; }
+.led-indicators li { font-weight: 600; margin-bottom: 12px; padding-left: 25px; position: relative; text-align: left; }
+.led-indicators li::before { content: ''; position: absolute; left: 0; top: 5px; width: 12px; height: 12px; border-radius: 50%; }
+.led-indicators li:nth-child(1)::before { background-color: #4CAF50; }
+.led-indicators li:nth-child(2)::before { background-color: #FFC107; }
+.led-indicators li:nth-child(3)::before { background-color: #F44336; }
+.screen-simulation {
+    background-color: #263238; color: #4CAF50; padding: 25px; border-radius: 8px;
+    max-width: 350px; margin: 30px auto; font-weight: 700; border: 3px solid #66BB6A;
+}
+.temporizador { font-size: 2.5em; font-family: 'Courier New', Courier, monospace; letter-spacing: 2px; }
+.code-block {
+    text-align: left; background-color: #1e1e1e; color: #b3e5fc; padding: 20px;
+    border-radius: 8px; overflow-x: auto; margin: 20px auto; max-width: 800px; font-family: monospace;
+}
+.code-block pre { margin: 0; white-space: pre-wrap; word-wrap: break-word; }
+.manual-steps { list-style: none; counter-reset: step-counter; text-align: left; max-width: 800px; margin: 30px auto; }
+.manual-steps li {
+    counter-increment: step-counter; margin-bottom: 25px; padding: 20px; border-radius: 10px;
+    background-color: white; box-shadow: 0 4px 12px rgba(0,0,0,0.07);
+}
+.manual-steps li strong { font-size: 1.3em; color: #66BB6A; display: block; margin-bottom: 5px; }
+.manual-steps li::before {
+    content: "Paso " counter(step-counter); color: #2E7D32; font-weight: 700;
+    background-color: #E8F5E9; padding: 5px 10px; border-radius: 5px; margin-right: 15px; display: inline-block;
+}
+.indicadores-funcionamiento {
+    text-align: left; max-width: 800px; margin: 40px auto; padding: 25px;
+    border-top: 3px solid #66BB6A; background-color: #E8F5E9; border-radius: 8px;
+}
+.indicadores-funcionamiento ul { list-style: none; padding-left: 0; }
+.indicadores-funcionamiento ul li::before { content: '→'; margin-right: 10px; color: #2E7D32; font-weight: bold; }
+footer {
+    background-color: #37474F; color: white; padding: 30px 0; font-size: 1em; text-align: center;
+}
+footer p { margin: 5px 0; }
+
+/* RESPONSIVE */
+@media (max-width: 768px) {
+    .objetivos-grid > div, .componentes-grid > div { width: 100%; }
+    .hero h1 { font-size: 2.5em; }
+    .menu-button { min-width: 80%; }
+}
+    </style>
+</head>
+<body>
+    
+    <!-- CABECERA PRINCIPAL (HERO) - LA PÁGINA PRINCIPAL -->
+    <header class="hero">
+        <div class="container">
+            <h1>HydroPot: La Maceta que Piensa por Ti 🌱</h1>
+            <p>Automatización, diseño 3D y electrónica para el cuidado óptimo de tus plantas.</p>
+            
+            <!-- MENÚ CENTRALIZADO CON BOTONES GRANDES -->
+            <div class="main-menu">
+                <a href="#" class="menu-button" data-target="presentacion">Presentación</a>
+                <a href="#" class="menu-button" data-target="render-3d">Diseño 3D</a>
+                <a href="#" class="menu-button" data-target="electronica">Electrónica</a>
+                <a href="#" class="menu-button" data-target="programacion">Programación</a>
+                <a href="#" class="menu-button" data-target="manual">Manual de Uso</a>
+            </div>
+            
+        </div>
+    </header>
+
+    <!-- 1. PRESENTACIÓN DEL PROYECTO -->
+    <section id="presentacion" class="section-gray content-section">
+        <button class="back-button">← Volver al Menú</button>
+        <div class="container">
+            <h2>🎯 Presentación y Objetivos del Proyecto</h2>
+            <p class="dirigido">HydroPot está dirigido a **adultos mayores con dificultades de movilidad** o **personas ocupadas** (ej: madre con horario completo) que necesitan simplificar el cuidado de sus plantas.</p>
+            
+            <div class="objetivos-grid">
+                <div>
+                    <h3>Objetivo Principal</h3>
+                    <p>Automatizar y simplificar el cuidado de las plantas a través de un sistema de autorriego inteligente, optimizando el uso del agua y mejorando la salud vegetal.</p>
+                </div>
+                <div>
+                    <h3>Metas Clave</h3>
+                    <ul>
+                        <li>Fomentar el cuidado de las plantas, tanto riego como exposición a luz.</li>
+                        <li>Crear un producto sencillo, útil, eficiente y de bajo costo.</li>
+                        <li>Facilitar el cuidado a personas con poco tiempo o movilidad.</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <p class="integrantes">**Materia:** Proyecto de Producción | **Curso:** 5to "A" | **Integrantes:** Lopez, Dzurjovcin, Montenegro, Pita y Nava</p>
+        </div>
+    </section>
+
+    <!-- 2. RENDER Y MODELADO 3D -->
+    <section id="render-3d" class="section-white content-section">
+        <button class="back-button">← Volver al Menú</button>
+        <div class="container">
+            <h2>🖼️ Diseño y Estructura 3D</h2>
+            <div class="render-info">
+                <p>La carcasa de HydroPot fue completamente diseñada para la impresión 3D, incluyendo un componente esencial para la electrónica:</p>
+                <ul>
+                    <li>**Compartimento Lateral:** Encastrado a la maceta y extraíble con facilidad. Es el espacio seguro para el **Arduino Nano** y otros componentes electrónicos.</li>
+                </ul>
+            </div>
+            
+            <!-- RUTA DEL RENDER: Se asume que el archivo es 'render_final.jpg' dentro de la carpeta 'images' -->
+            <div class="render-container">
+                <img src="images/render_final.jpg" onerror="this.onerror=null; this.src='https://placehold.co/700x400/2E7D32/ffffff?text=Render+3D+de+HydroPot';" alt="Render 3D de la maceta HydroPot" class="render-image">
+            </div>
+        </div>
+    </section>
+
+    <!-- 3. EXPLICACIÓN DE LA ELECTRÓNICA Y ROBÓTICA -->
+    <section id="electronica" class="section-gray content-section">
+        <button class="back-button">← Volver al Menú</button>
+        <div class="container">
+            <h2>💡 Electrónica y Funcionamiento Robótico</h2>
+            <p>HydroPot opera con un sistema autónomo impulsado por el **Arduino Nano**, programado para tomar decisiones de riego.</p>
+            
+            <div class="componentes-grid">
+                <div>
+                    <h3>Componentes Clave:</h3>
+                    <ul>
+                        <li>**Arduino Nano:** El cerebro que ejecuta el programa informático.</li>
+                        <li>**Sensor de Humedad:** Los "ojos" del sistema. Mide la humedad y le indica al Arduino cuándo regar.</li>
+                        <li>**Bomba de Agua:** El "músculo". Riega solo cuando el sensor lo indica.</li>
+                        <li>**Tiras LED (Ultra UV):** Proporcionan la luz solar necesaria para un crecimiento fuerte.</li>
+                        <li>**Pantalla:** Muestra el último riego con un temporizador (00:00:00).</li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h3>Indicadores Visuales:</h3>
+                    <p>El estado de la planta se visualiza con tres luces LED:</p>
+                    <ul class="led-indicators">
+                        <li>**Verde:** Totalmente hidratada.</li>
+                        <li>**Amarilla:** Punto medio de hidratación.</li>
+                        <li>**Roja:** Necesita ser regada.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 4. PANTALLA Y PROGRAMACIÓN (CÓDIGO FINAL) -->
+    <section id="programacion" class="section-white content-section">
+        <button class="back-button">← Volver al Menú</button>
+        <div class="container">
+            <h2>⚙️ Programación del Sistema y Pantalla</h2>
+            <p>El código establece la lógica de riego y el funcionamiento del temporizador que se muestra en la **Pantalla**.</p>
+            
+            <h3>Simulación de la Pantalla:</h3>
+            <div class="screen-simulation">
+                <!-- ESTE TEXTO SIMULA LO QUE MUESTRA LA PANTALLA DE LA MACETA -->
+                <p>Último Riego Hace:</p>
+                <div class="temporizador">00:00:00</div>
+            </div>
+
+            <h3>Fragmento de Código Clave (Arduino/C++):</h3>
+            <div class="code-block">
+                <pre>
+// ----------------------------------------------------
+// HydroPot: Código Principal de Autorriego (Arduino Nano)
+// ----------------------------------------------------
+#include &lt;Wire.h&gt;
+#include &lt;LiquidCrystal_I2C.h&gt;
+
+// Inicialización de la pantalla LCD (Dirección I2C 0x27)
+LiquidCrystal_I2C lcd(0x27, 16, 2);
+
+// Asignación de Pines
+const int SENSOR_HUMEDAD_PIN = A0; // Sensor de Humedad (Entrada Analógica)
+const int BOMBA_PIN = 8;           // Bomba de Agua (Salida Digital)
+const int LED_ROJO = 4;            // LED de Indicador de Baja Humedad
+const int LED_UV_PIN = 9;          // Tiras LED Ultra UV (Activación de crecimiento)
+
+int valorHumedad = 0;              // Valor leído del sensor
+unsigned long ultimoRiegoMillis = 0; // Almacena el tiempo del último riego
+bool estaRegando = false;          // Bandera de estado actual
+
+void setup() {
+  // Configuración de Pines
+  pinMode(BOMBA_PIN, OUTPUT);
+  pinMode(LED_ROJO, OUTPUT);
+  pinMode(LED_UV_PIN, OUTPUT); // Inicializamos el pin de las luces UV
+
+  // Inicialización de la pantalla LCD
+  lcd.init();
+  lcd.backlight();
+  lcd.setCursor(0, 0);
+  lcd.print("HYDRO POT - ON");
+  delay(2000);
+  lcd.clear();
+}
+
+void loop() {
+  valorHumedad = analogRead(SENSOR_HUMEDAD_PIN); // Lee el nivel de humedad
+
+  // 1. Lógica de Riego (Umbral de humedad)
+  // Si la humedad cae por debajo de 630 (Tierra seca) y no estamos ya regando, iniciar.
+  if (valorHumedad &gt; 630 &amp;&amp; !estaRegando) {
+    iniciarRiego();
+  }
+
+  // 2. Control de LEDs (Indicadores visuales)
+  if (valorHumedad &gt; 600) { // Muy seco (umbral alto)
+    digitalWrite(LED_ROJO, HIGH);
+    // Nota: Los LEDs Verde y Amarillo se controlan dentro de iniciarRiego/mostrarTiempo
+  } else {
+    digitalWrite(LED_ROJO, LOW);
+  }
+
+  // 3. Mostrar estado o temporizador
+  mostrarTiempo(millis());
+  
+  delay(1000);
+}
+
+// Función que ejecuta el ciclo de riego
+void iniciarRiego() {
+  estaRegando = true;
+
+  // Estado: REGANDO
+  lcd.clear();
+  lcd.setCursor(0, 0);
+  lcd.print("Regando...");
+  digitalWrite(LED_ROJO, LOW); // Apaga el LED rojo
+  
+  // Activa la bomba por 5 segundos
+  digitalWrite(BOMBA_PIN, HIGH);
+  delay(5000); // 5 segundos de riego
+  digitalWrite(BOMBA_PIN, LOW);
+
+  // Activa las luces Ultra UV y guarda el tiempo
+  digitalWrite(LED_UV_PIN, HIGH); // Las luces UV se encienden al terminar el riego
+  ultimoRiegoMillis = millis(); // Guarda el momento exacto
+  
+  estaRegando = false;
+}
+
+// Función que calcula y muestra el tiempo desde el último riego
+void mostrarTiempo(unsigned long tiempoActual) {
+  if (ultimoRiegoMillis == 0 || estaRegando) return;
+
+  unsigned long tiempoPasado = (tiempoActual - ultimoRiegoMillis) / 1000; // Segundos
+  int horas = tiempoPasado / 3600;
+  int minutos = (tiempoPasado % 3600) / 60;
+  int segundos = tiempoPasado % 60;
+
+  // Muestra el temporizador en el LCD
+  lcd.setCursor(0, 0);
+  lcd.print("Ult. riego:");
+  
+  lcd.setCursor(0, 1);
+  // Formatea HH:MM:SS (con ceros iniciales)
+  if (horas < 10) lcd.print("0"); lcd.print(horas); lcd.print(":");
+  if (minutos < 10) lcd.print("0"); lcd.print(minutos); lcd.print(":");
+  if (segundos < 10) lcd.print("0"); lcd.print(segundos);
+}
+// ----------------------------------------------------
+                </pre>
+            </div>
+            
+            <p class="diferencia">**Diferencia de la Competencia:** Nuestro temporizador e indicador de luces facilitan al usuario la detección de fallos técnicos y el monitoreo del estado de la planta.</p>
+        </div>
+    </section>
+
+    <!-- 5. MANUAL DE USO -->
+    <section id="manual" class="section-gray content-section">
+        <button class="back-button">← Volver al Menú</button>
+        <div class="container">
+            <h2>📘 Manual de Uso Paso a Paso</h2>
+            <ol class="manual-steps">
+                <li>
+                    <strong>Preparación:</strong>
+                    <p>Coloque la tierra y la planta en el cuerpo principal de la maceta HydroPot. Asegúrese de que la planta esté centrada y la tierra asentada.</p>
+                </li>
+                <li>
+                    <strong>Instalación del Sensor de Humedad:</strong>
+                    <p>Inserte la punta del Sensor de Humedad directamente en la tierra, a una profundidad media. Asegúrese de que el sensor esté firmemente conectado al cableado dentro del compartimento lateral.</p>
+                </li>
+                <li>
+                    <strong>Conexión del Sistema de Riego:</strong>
+                    <p>Asegúrese de que la bomba de agua y el tubo estén correctamente ubicados para extraer agua del depósito interno de la maceta.</p>
+                </li>
+                <li>
+                    <strong>Encendido y Automatización:</strong>
+                    <p>Conecte el cable de alimentación del sistema HydroPot a la fuente de energía (ej: un adaptador USB). El sistema se iniciará automáticamente.</p>
+                </li>
+            </ol>
+
+            <h3>Indicadores de Funcionamiento</h3>
+            <div class="indicadores-funcionamiento">
+                <p><strong>Pantalla:</strong></p>
+                <ul>
+                    <li>Cuando el sistema detecta baja humedad y activa la bomba, la pantalla mostrará el mensaje: **"Regando"**.</li>
+                    <li>Al terminar el ciclo de riego, la pantalla cambiará a: **"Ult. riego: HH:MM:SS"** (ej: `Ult. riego: 00:04:00` significa que regó por última vez hace 4 minutos).</li>
+                </ul>
+                <p><strong>Luces Ultra UV:</strong></p>
+                <ul>
+                    <li>Las luces ultravioletas se activan automáticamente después de cada ciclo de riego para garantizar que la planta reciba la luz necesaria para el crecimiento.</li>
+                </ul>
+            </div>
+            
+        </div>
+    </section>
+
+    <!-- PIE DE PÁGINA -->
+    <footer class="content-section">
+        <div class="container">
+            <p>Proyecto de Producción | 5to “A” | Profesor: Daniel Cortés</p>
+            <p>&copy; Integrantes: Lopez, Dzurjovcin, Montenegro, Pita y Nava.</p>
+        </div>
+    </footer>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const menuButtons = document.querySelectorAll('.menu-button');
+            const contentSections = document.querySelectorAll('.content-section');
+            const heroSection = document.querySelector('.hero');
+            const footerSection = document.querySelector('footer');
+            const backButtons = document.querySelectorAll('.back-button'); 
+
+            // 1. Función para ocultar todas las secciones de contenido y el footer
+            const hideAllContent = () => {
+                contentSections.forEach(section => {
+                    section.classList.remove('active');
+                });
+                footerSection.style.display = 'none';
+            };
+
+            // 2. Función para mostrar la sección principal (Hero)
+            const showHero = (show) => {
+                heroSection.style.display = show ? 'flex' : 'none';
+            };
+
+            // 3. Inicialización: Ocultar todo el contenido al inicio
+            hideAllContent();
+            // Asegurarse de que el Hero esté visible inicialmente
+            showHero(true);
+            
+            // 4. Lógica de clic en los botones del menú (navegación hacia adelante)
+            menuButtons.forEach(button => {
+                button.addEventListener('click', (event) => {
+                    event.preventDefault();
+                    
+                    const targetId = button.getAttribute('data-target');
+                    const targetSection = document.getElementById(targetId);
+
+                    if (targetSection) {
+                        // Oculta el Hero
+                        showHero(false);
+                        
+                        // Oculta el contenido actualmente visible
+                        hideAllContent();
+
+                        // Muestra la sección deseada
+                        targetSection.classList.add('active');
+                        
+                        // Muestra el footer una vez que una sección de contenido está activa
+                        footerSection.style.display = 'block';
+
+                        // Desplazar a la sección recién abierta
+                        targetSection.scrollIntoView({ behavior: 'smooth' });
+                    }
+                });
+            });
+
+            // 5. Lógica de clic en los botones "Volver al Menú" (navegación hacia atrás)
+            backButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    // 1. Oculta la sección actual
+                    hideAllContent(); 
+                    
+                    // 2. Muestra el Hero (Menú Principal)
+                    showHero(true);
+                    
+                    // 3. Lleva al usuario al inicio de la página
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                });
+            });
+        });
+    </script>
+</body>
+</html>
+
 
 
